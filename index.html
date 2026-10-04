@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10201C"><link rel="manifest" href="manifest.webmanifest"><title>Fotos UTM</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#10201C;color:#F2F5F0;font:16px system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+main{flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;padding-bottom:84px}h1{font-size:20px;margin:0}small,label{color:#B7C7BF;font-size:13px}
+input,textarea,select{width:100%;min-height:48px;border-radius:10px;border:1px solid #2F4D44;background:#1B332D;color:#F2F5F0;font:inherit;padding:10px 12px}
+button{min-height:48px;border-radius:10px;border:1px solid #E8A317;background:transparent;color:#E8A317;font:600 16px system-ui;padding:0 14px}button.p{background:#E8A317;color:#10201C}
+.c{background:#1B332D;border:1px solid #2F4D44;border-radius:10px;padding:12px}.m{font:500 15px ui-monospace,monospace;line-height:1.6}.g{color:#9FD8B5}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#1B332D;border-top:1px solid #2F4D44}nav button{flex:1;border:0;border-radius:0;min-height:60px;color:#B7C7BF}nav button.on{color:#E8A317}
+.r{display:flex;gap:10px}.r img{width:64px;height:64px;object-fit:cover;border-radius:8px}[hidden]{display:none!important}
+</style></head><body><main>
+<section id="s0" hidden><h1>Nuevo proyecto</h1><small>Datos obligatorios, se registran en cada foto.</small>
+<label for="p">Proyecto</label><input id="p"><label for="e">Entidad</label><input id="e"><label for="f">Fecha</label><input id="f" type="date">
+<button class="p" id="ini">Iniciar levantamiento</button></section>
+<section id="s1" hidden><div style="display:flex;justify-content:space-between"><div><h1>Captura</h1><small id="pn"></small></div><button id="cp">Cambiar</button></div>
+<div class="c m" id="gps">Buscando GPS…</div><label for="zf">Zona UTM</label><select id="zf"><option value="">Automática</option><option>17</option><option>18</option><option>19</option></select>
+<button class="p" id="tk" style="min-height:64px">Tomar foto</button><small>Sin conexión también funciona. El nombre y la descripción se pueden dictar con el micrófono del teclado.</small>
+<input id="cam" type="file" accept="image/*" capture="environment" hidden>
+<div id="sh" class="c" hidden style="display:flex;flex-direction:column;gap:8px"><img id="pv" style="width:100%;max-height:260px;object-fit:cover;border-radius:8px"><div class="m" id="sc"></div>
+<label for="nm">Nombre de la foto</label><input id="nm" placeholder="Vista frontal del predio"><label for="ds">Descripción del predio</label><textarea id="ds" rows="3"></textarea>
+<div class="r"><button class="p" id="sv" style="flex:1">Guardar</button><button id="dc">Descartar</button></div></div></section>
+<section id="s2" hidden><h1>Registro</h1><div id="ls" style="display:flex;flex-direction:column;gap:10px"></div></section>
+<section id="s3" hidden><h1>Exportar</h1><div class="c"><b>ZIP con Excel, KML y fotos</b><br><small>registro.xlsx, ubicaciones.kml (Google Earth) y las fotos sin datos impresos.</small></div><button class="p" id="ex">Exportar y compartir</button><small id="em"></small></section>
+</main><nav><button data-s="1" class="on">Captura</button><button data-s="2">Registro</button><button data-s="3">Exportar</button></nav>
+<script src="lib.js"></script><script>
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(3,"0");
+let db,pos,snap,file,proj=JSON.parse(localStorage.proj||"null");
+const q=indexedDB.open("fotoutm",1);q.onupgradeneeded=()=>q.result.createObjectStore("f",{keyPath:"id",autoIncrement:true});
+q.onsuccess=()=>{db=q.result;go(proj?1:0)};
+const st=m=>db.transaction("f",m).objectStore("f");
+const all=()=>new Promise(r=>{const g=st("readonly").getAll();g.onsuccess=()=>r(g.result.filter(x=>x.pid==proj.id).sort((a,b)=>a.n-b.n))});
+const dt=t=>{const d=new Date(t),z=n=>String(n).padStart(2,"0");return[`${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()}`,`${z(d.getHours())}:${z(d.getMinutes())}`]};
+function go(n){[0,1,2,3].forEach(i=>$("#s"+i).hidden=i!=n);document.querySelector("nav").hidden=n==0;
+document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.s==n));
+if(n==1){$("#pn").textContent=proj.nombre+" · "+proj.entidad;$("#sh").hidden=!file}if(n==2)list()}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(+b.dataset.s));
+$("#f").value=new Date().toISOString().slice(0,10);
+$("#ini").onclick=()=>{const p=$("#p").value.trim(),e=$("#e").value.trim(),f=$("#f").value;if(!p||!e||!f)return alert("Completa proyecto, entidad y fecha.");
+proj={id:Date.now(),nombre:p,entidad:e,fecha:f};localStorage.proj=JSON.stringify(proj);go(1)};
+$("#cp").onclick=()=>go(0);$("#zf").value=localStorage.zf||"";$("#zf").onchange=e=>{localStorage.zf=e.target.value;showGps()};
+function showGps(){if(!pos)return;const c=pos.coords,u=toUTM(c.latitude,c.longitude,$("#zf").value);
+$("#gps").innerHTML=`<span class="g">WGS84 · Zona ${u.zone}${u.band} · ±${Math.round(c.accuracy)} m</span><br>E ${u.e.toFixed(1)}<br>N ${u.n.toFixed(1)}`}
+navigator.geolocation?navigator.geolocation.watchPosition(p=>{pos=p;showGps()},e=>{$("#gps").textContent="GPS no disponible: activa la ubicación y permite el acceso."},{enableHighAccuracy:true,maximumAge:0}):0;
+$("#tk").onclick=()=>{if(!pos)return alert("Aún no hay posición GPS. Espera unos segundos al aire libre.");
+const c=pos.coords;snap={lat:c.latitude,lon:c.longitude,alt:c.altitude,acc:c.accuracy,ts:Date.now()};$("#cam").click()};
+$("#cam").onchange=e=>{file=e.target.files[0];e.target.value="";if(!file)return;
+const u=toUTM(snap.lat,snap.lon,$("#zf").value);$("#pv").src=URL.createObjectURL(file);$("#nm").value="";$("#ds").value="";
+$("#sc").textContent=`Zona ${u.zone}${u.band} · E ${u.e.toFixed(1)} · N ${u.n.toFixed(1)}`;$("#sh").hidden=false};
+$("#dc").onclick=()=>{file=null;$("#sh").hidden=true};
+$("#sv").onclick=async()=>{const l=await all(),n=l.length?l[l.length-1].n+1:1,u=toUTM(snap.lat,snap.lon,$("#zf").value);
+const rec={pid:proj.id,n,code:"FOTO-"+pad(n),nombre:$("#nm").value.trim()||"Sin nombre",desc:$("#ds").value.trim(),...snap,e:u.e,nn:u.n,zone:u.zone+u.band,blob:file};
+await new Promise(r=>{const t=db.transaction("f","readwrite");t.objectStore("f").add(rec);t.oncomplete=r});file=null;$("#sh").hidden=true};
+async function list(){const l=await all();$("#ls").innerHTML=l.length?"":"<small>Aún no hay fotos.</small>";
+l.forEach(r=>{const d=document.createElement("div"),[f,h]=dt(r.ts);d.className="c r";d.innerHTML=`<img src="${URL.createObjectURL(r.blob)}" alt=""><div style="flex:1;font-size:14px"><b>${r.code} · </b><span></span><br><span class="g m" style="font-size:12px">${r.zone} E ${r.e.toFixed(0)} N ${r.nn.toFixed(0)}</span><br><small>${f} ${h}</small></div><div style="display:flex;flex-direction:column;gap:6px"><button aria-label="Editar" style="min-height:40px">Editar</button><button aria-label="Eliminar" style="min-height:40px">X</button></div>`;
+d.querySelector("span").textContent=r.nombre;d.querySelector("[aria-label=Editar]").onclick=()=>{const n=prompt("Nombre de la foto",r.nombre);if(n===null)return;const t=prompt("Descripción del predio",r.desc);if(t===null)return;r.nombre=n.trim()||"Sin nombre";r.desc=t.trim();st("readwrite").put(r).onsuccess=list};d.querySelector("[aria-label=Eliminar]").onclick=()=>{if(confirm("¿Eliminar "+r.code+"?")){st("readwrite").delete(r.id).onsuccess=list}};$("#ls").append(d)})}
+$("#ex").onclick=async()=>{const l=await all();if(!l.length)return alert("No hay fotos para exportar.");$("#em").textContent="Preparando…";
+const rows=[["N° foto","Código","Nombre de la foto","Descripción del predio","Zona UTM","Este (m)","Norte (m)","Latitud","Longitud","Precisión GPS (m)","Fecha","Hora","Proyecto","Entidad"]];
+const fs=[];for(const r of l){const[f,h]=dt(r.ts);rows.push([r.n,r.code,r.nombre,r.desc,r.zone,+r.e.toFixed(2),+r.nn.toFixed(2),+r.lat.toFixed(7),+r.lon.toFixed(7),+(r.acc||0).toFixed(1),f,h,proj.nombre,proj.entidad]);
+fs.push({name:"fotos/"+r.code+".jpg",data:new Uint8Array(await r.blob.arrayBuffer())})}
+const en=new TextEncoder(),xb=new Uint8Array(await xlsx(rows).arrayBuffer());
+fs.push({name:"registro.xlsx",data:xb},{name:"ubicaciones.kml",data:en.encode(kml(proj.nombre,l))});
+const nm=proj.nombre.replace(/[^\w-]+/g,"_")+"_"+proj.fecha+".zip",z=new File([zip(fs)],nm,{type:"application/zip"});
+if(navigator.canShare&&navigator.canShare({files:[z]}))try{await navigator.share({files:[z],title:nm})}catch(_){}else{const a=document.createElement("a");a.href=URL.createObjectURL(z);a.download=nm;a.click()}
+$("#em").textContent="Listo: "+nm};
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");
+</script></body></html>
