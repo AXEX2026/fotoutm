@@ -10,7 +10,7 @@ button.c{color:#F2F5F0;border-color:#2F4D44;font-weight:400;text-align:left;widt
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#1B332D;border-top:1px solid #2F4D44}nav button{flex:1;border:0;border-radius:0;min-height:60px;color:#B7C7BF}nav button.on{color:#E8A317}
 .r{display:flex;gap:10px}.r img{width:64px;height:64px;object-fit:cover;border-radius:8px}[hidden]{display:none!important}
 </style></head><body><main>
-<section id="s0" hidden style="display:flex;flex-direction:column;gap:8px"><img src="logo.png" alt="Logo Fotos UTM" style="width:96px;height:96px;object-fit:contain;align-self:center"><h1 style="text-align:center">Fotos UTM</h1><small style="text-align:center">Versión 3.2</small>
+<section id="s0" hidden style="display:flex;flex-direction:column;gap:8px"><img src="logo.png" alt="Logo Fotos UTM" style="width:96px;height:96px;object-fit:contain;align-self:center"><h1 style="text-align:center">Fotos UTM</h1><small style="text-align:center">Versión 3.3</small>
 <div class="c w" style="font-size:14px">Antes de empezar, verifica que la <b>ubicación del celular esté activada</b> (precisa) y permite el acceso cuando la app lo pida.</div>
 <label for="p">Proyecto</label><input id="p"><label for="e">Entidad</label><input id="e"><label for="f">Fecha</label><input id="f" type="date">
 <label for="md">Modo de trabajo</label><select id="md"><option value="sin">Sin internet</option><option value="con">Con internet</option></select>
@@ -26,7 +26,7 @@ nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#1B332D;borde
 <div class="r"><button class="p" id="sv" style="flex:1">Guardar</button><button id="dc">Descartar</button></div></div></section>
 <section id="s2" hidden><h1>Registro</h1><div id="ls" style="display:flex;flex-direction:column;gap:10px"></div></section>
 <section id="s3" hidden><h1>Exportar y compartir</h1><small>Se abre la lista de apps del celular (WhatsApp, Drive, correo…). Los archivos llevan el nombre del proyecto.</small>
-<button class="p" id="bx">Excel (.xlsx)</button><button class="p" id="bk">KML (Google Earth)</button><button id="bz">ZIP completo con fotos</button><small id="em"></small></section>
+<label for="ac">¿Qué hacer con el archivo?</label><select id="ac"><option value="c">Compartir (WhatsApp, Drive, correo…)</option><option value="g">Guardar en el celular (Descargas)</option></select><button class="p" id="bx">Excel (.xlsx)</button><button class="p" id="bk">KML (Google Earth)</button><button id="bz">ZIP completo con fotos</button><small id="em"></small></section>
 </main><nav><button data-s="1" class="on">Captura</button><button data-s="2">Registro</button><button data-s="3">Exportar</button></nav>
 <div id="cv" hidden style="position:fixed;inset:0;background:#000;z-index:9;display:flex;flex-direction:column"><video id="vd" autoplay playsinline muted style="flex:1;min-height:0;width:100%;object-fit:cover"></video><div style="display:flex;gap:10px;padding:16px;background:#10201C"><button id="cc" style="flex:1">Cerrar</button><button class="p" id="cs" style="flex:2;min-height:64px">Capturar</button></div></div>
 <script src="lib.js"></script><script>
@@ -37,7 +37,7 @@ q.onsuccess=()=>{db=q.result;go(proj?1:0)};
 const st=m=>db.transaction("f",m).objectStore("f");
 const all=()=>new Promise(r=>{const g=st("readonly").getAll();g.onsuccess=()=>r(g.result.filter(x=>x.pid==proj.id).sort((a,b)=>a.n-b.n))});
 const dt=t=>{const d=new Date(t),z=n=>String(n).padStart(2,"0");return[`${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()}`,`${z(d.getHours())}:${z(d.getMinutes())}`]};
-function badge(){const m=localStorage.mode||"sin";$("#mb").textContent="v3.2 · Modo: "+(m=="con"?"Con internet":"Sin internet")+(m=="con"&&!navigator.onLine?" (sin conexión ahora)":"")}
+function badge(){const m=localStorage.mode||"sin";$("#mb").textContent="v3.3 · Modo: "+(m=="con"?"Con internet":"Sin internet")+(m=="con"&&!navigator.onLine?" (sin conexión ahora)":"")}
 function projList(){$("#pl").innerHTML=projs.length?"":"<small>Aún no hay proyectos anteriores.</small>";
 projs.forEach(p=>{const b=document.createElement("button");b.className="c";b.textContent=`${p.nombre} · ${p.entidad} · ${p.fecha}`;b.onclick=()=>{proj=p;localStorage.proj=JSON.stringify(p);go(1)};$("#pl").append(b)})}
 function go(n){[0,1,2,3].forEach(i=>$("#s"+i).hidden=i!=n);document.querySelector("nav").hidden=n==0;
@@ -90,7 +90,10 @@ const slug=()=>proj.nombre.replace(/[^\w-]+/g,"_")+"_"+proj.fecha;
 async function datos(){const l=await all();if(!l.length){alert("No hay fotos para exportar.");return}
 const rows=[["N° foto","Código","Nombre de la foto","Descripción del predio","Zona UTM","Este (m)","Norte (m)","Latitud","Longitud","Precisión GPS (m)","Fecha","Hora","Proyecto","Entidad"]];
 l.forEach(r=>{const[f,h]=dt(r.ts);rows.push([r.n,r.code,r.nombre,r.desc,r.zone,+r.e.toFixed(2),+r.nn.toFixed(2),+r.lat.toFixed(7),+r.lon.toFixed(7),+(r.acc||0).toFixed(1),f,h,proj.nombre,proj.entidad])});return{l,rows}}
-async function enviar(f){if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:f.name})}catch(_){}}else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=f.name;a.click()}$("#em").textContent="Listo: "+f.name}
+async function enviar(f){const g=$("#ac").value=="g";let ok=true;
+if(!g&&navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:f.name})}catch(e){ok=e.name!="AbortError"}}
+else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=f.name;a.click()}
+$("#em").textContent=ok?(g?"Guardado en Descargas: ":"Enviado: ")+f.name:"Se canceló el envío. Vuelve a intentarlo."}
 $("#bx").onclick=async()=>{const d=await datos();if(d)enviar(new File([xlsx(d.rows)],slug()+".xlsx",{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}))};
 $("#bk").onclick=async()=>{const d=await datos();if(d)enviar(new File([kml(proj.nombre,d.l)],slug()+".kml",{type:"application/vnd.google-earth.kml+xml"}))};
 $("#bz").onclick=async()=>{const d=await datos();if(!d)return;$("#em").textContent="Preparando…";const fs=[];
