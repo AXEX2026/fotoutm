@@ -4,63 +4,98 @@
 *{box-sizing:border-box}body{margin:0;background:#10201C;color:#F2F5F0;font:16px system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
 main{flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;padding-bottom:84px}h1{font-size:20px;margin:0}small,label{color:#B7C7BF;font-size:13px}
 input,textarea,select{width:100%;min-height:48px;border-radius:10px;border:1px solid #2F4D44;background:#1B332D;color:#F2F5F0;font:inherit;padding:10px 12px}
-button{min-height:48px;border-radius:10px;border:1px solid #E8A317;background:transparent;color:#E8A317;font:600 16px system-ui;padding:0 14px}button.p{background:#E8A317;color:#10201C}
-.c{background:#1B332D;border:1px solid #2F4D44;border-radius:10px;padding:12px}.m{font:500 15px ui-monospace,monospace;line-height:1.6}.g{color:#9FD8B5}
+button{min-height:48px;border-radius:10px;border:1px solid #E8A317;background:transparent;color:#E8A317;font:600 16px system-ui;padding:0 14px}button.p{background:#E8A317;color:#10201C}button.sm{min-height:40px;font-size:14px;flex:1}
+button.c{color:#F2F5F0;border-color:#2F4D44;font-weight:400;text-align:left;width:100%;padding:12px}
+.c{background:#1B332D;border:1px solid #2F4D44;border-radius:10px;padding:12px}.m{font:500 15px ui-monospace,monospace;line-height:1.6}.g{color:#9FD8B5}.w{color:#F5C26B}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#1B332D;border-top:1px solid #2F4D44}nav button{flex:1;border:0;border-radius:0;min-height:60px;color:#B7C7BF}nav button.on{color:#E8A317}
 .r{display:flex;gap:10px}.r img{width:64px;height:64px;object-fit:cover;border-radius:8px}[hidden]{display:none!important}
 </style></head><body><main>
-<section id="s0" hidden><h1>Nuevo proyecto</h1><small>Datos obligatorios, se registran en cada foto.</small>
+<section id="s0" hidden style="display:flex;flex-direction:column;gap:8px"><img src="logo.png" alt="Logo Fotos UTM" style="width:96px;height:96px;object-fit:contain;align-self:center"><h1 style="text-align:center">Fotos UTM</h1>
+<div class="c w" style="font-size:14px">Antes de empezar, verifica que la <b>ubicación del celular esté activada</b> (precisa) y permite el acceso cuando la app lo pida.</div>
 <label for="p">Proyecto</label><input id="p"><label for="e">Entidad</label><input id="e"><label for="f">Fecha</label><input id="f" type="date">
-<button class="p" id="ini">Iniciar levantamiento</button></section>
-<section id="s1" hidden><div style="display:flex;justify-content:space-between"><div><h1>Captura</h1><small id="pn"></small></div><button id="cp">Cambiar</button></div>
-<div class="c m" id="gps">Buscando GPS…</div><label for="zf">Zona UTM</label><select id="zf"><option value="">Automática</option><option>17</option><option>18</option><option>19</option></select>
-<button class="p" id="tk" style="min-height:64px">Tomar foto</button><small>Sin conexión también funciona. El nombre y la descripción se pueden dictar con el micrófono del teclado.</small>
+<label for="md">Modo de trabajo</label><select id="md"><option value="sin">Sin internet</option><option value="con">Con internet</option></select>
+<button class="p" id="ini">Iniciar levantamiento</button><h1 style="font-size:16px;margin-top:8px">Proyectos anteriores</h1><div id="pl" style="display:flex;flex-direction:column;gap:8px"></div></section>
+<section id="s1" hidden><div style="display:flex;justify-content:space-between"><div><h1>Captura</h1><small id="pn"></small><br><small id="mb"></small></div><button id="cp">Cambiar</button></div>
+<div class="c m" id="gps">Buscando GPS…</div><button id="rg">Reintentar GPS</button><small>Verifica que la ubicación del celular esté activada.</small>
+<label for="zf">Zona UTM</label><select id="zf"><option value="">Automática</option><option>17</option><option>18</option><option>19</option></select>
+<button class="p" id="tk" style="min-height:64px">Tomar foto</button>
 <input id="cam" type="file" accept="image/*" capture="environment" hidden>
 <div id="sh" class="c" hidden style="display:flex;flex-direction:column;gap:8px"><img id="pv" style="width:100%;max-height:260px;object-fit:cover;border-radius:8px"><div class="m" id="sc"></div>
-<label for="nm">Nombre de la foto</label><input id="nm" placeholder="Vista frontal del predio"><label for="ds">Descripción del predio</label><textarea id="ds" rows="3"></textarea>
+<label for="nm">Nombre de la foto</label><input id="nm" placeholder="Vista frontal del predio"><div class="r"><button class="sm" data-f="nm" data-a="t">✏️ Texto</button><button class="sm" data-f="nm" data-a="a">🎤 Audio</button></div>
+<label for="ds">Descripción del predio</label><textarea id="ds" rows="3"></textarea><div class="r"><button class="sm" data-f="ds" data-a="t">✏️ Texto</button><button class="sm" data-f="ds" data-a="a">🎤 Audio</button></div>
 <div class="r"><button class="p" id="sv" style="flex:1">Guardar</button><button id="dc">Descartar</button></div></div></section>
 <section id="s2" hidden><h1>Registro</h1><div id="ls" style="display:flex;flex-direction:column;gap:10px"></div></section>
-<section id="s3" hidden><h1>Exportar</h1><div class="c"><b>ZIP con Excel, KML y fotos</b><br><small>registro.xlsx, ubicaciones.kml (Google Earth) y las fotos sin datos impresos.</small></div><button class="p" id="ex">Exportar y compartir</button><small id="em"></small></section>
+<section id="s3" hidden><h1>Exportar y compartir</h1><small>Se abre la lista de apps del celular (WhatsApp, Drive, correo…). Los archivos llevan el nombre del proyecto.</small>
+<button class="p" id="bx">Excel (.xlsx)</button><button class="p" id="bk">KML (Google Earth)</button><button id="bz">ZIP completo con fotos</button><small id="em"></small></section>
 </main><nav><button data-s="1" class="on">Captura</button><button data-s="2">Registro</button><button data-s="3">Exportar</button></nav>
+<div id="cv" hidden style="position:fixed;inset:0;background:#000;z-index:9;display:flex;flex-direction:column"><video id="vd" autoplay playsinline muted style="flex:1;min-height:0;width:100%;object-fit:cover"></video><div style="display:flex;gap:10px;padding:16px;background:#10201C"><button id="cc" style="flex:1">Cerrar</button><button class="p" id="cs" style="flex:2;min-height:64px">Capturar</button></div></div>
 <script src="lib.js"></script><script>
 const $=s=>document.querySelector(s),pad=n=>String(n).padStart(3,"0");
-let db,pos,snap,file,proj=JSON.parse(localStorage.proj||"null");
+let db,pos,snap,file,wid,proj=JSON.parse(localStorage.proj||"null"),projs=JSON.parse(localStorage.projs||"[]");
 const q=indexedDB.open("fotoutm",1);q.onupgradeneeded=()=>q.result.createObjectStore("f",{keyPath:"id",autoIncrement:true});
 q.onsuccess=()=>{db=q.result;go(proj?1:0)};
 const st=m=>db.transaction("f",m).objectStore("f");
 const all=()=>new Promise(r=>{const g=st("readonly").getAll();g.onsuccess=()=>r(g.result.filter(x=>x.pid==proj.id).sort((a,b)=>a.n-b.n))});
 const dt=t=>{const d=new Date(t),z=n=>String(n).padStart(2,"0");return[`${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()}`,`${z(d.getHours())}:${z(d.getMinutes())}`]};
+function badge(){const m=localStorage.mode||"sin";$("#mb").textContent="Modo: "+(m=="con"?"Con internet":"Sin internet")+(m=="con"&&!navigator.onLine?" (sin conexión ahora)":"")}
+function projList(){$("#pl").innerHTML=projs.length?"":"<small>Aún no hay proyectos anteriores.</small>";
+projs.forEach(p=>{const b=document.createElement("button");b.className="c";b.textContent=`${p.nombre} · ${p.entidad} · ${p.fecha}`;b.onclick=()=>{proj=p;localStorage.proj=JSON.stringify(p);go(1)};$("#pl").append(b)})}
 function go(n){[0,1,2,3].forEach(i=>$("#s"+i).hidden=i!=n);document.querySelector("nav").hidden=n==0;
 document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.s==n));
-if(n==1){$("#pn").textContent=proj.nombre+" · "+proj.entidad;$("#sh").hidden=!file}if(n==2)list()}
+if(n==0)projList();if(n==1){$("#pn").textContent=proj.nombre+" · "+proj.entidad;badge();$("#sh").hidden=!file}if(n==2)list()}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(+b.dataset.s));
-$("#f").value=new Date().toISOString().slice(0,10);
+$("#f").value=new Date().toISOString().slice(0,10);$("#md").value=localStorage.mode||"sin";$("#md").onchange=e=>{localStorage.mode=e.target.value;badge()};
+addEventListener("online",badge);addEventListener("offline",badge);
 $("#ini").onclick=()=>{const p=$("#p").value.trim(),e=$("#e").value.trim(),f=$("#f").value;if(!p||!e||!f)return alert("Completa proyecto, entidad y fecha.");
-proj={id:Date.now(),nombre:p,entidad:e,fecha:f};localStorage.proj=JSON.stringify(proj);go(1)};
+proj={id:Date.now(),nombre:p,entidad:e,fecha:f};projs.unshift(proj);localStorage.projs=JSON.stringify(projs);localStorage.proj=JSON.stringify(proj);go(1)};
 $("#cp").onclick=()=>go(0);$("#zf").value=localStorage.zf||"";$("#zf").onchange=e=>{localStorage.zf=e.target.value;showGps()};
 function showGps(){if(!pos)return;const c=pos.coords,u=toUTM(c.latitude,c.longitude,$("#zf").value);
 $("#gps").innerHTML=`<span class="g">WGS84 · Zona ${u.zone}${u.band} · ±${Math.round(c.accuracy)} m</span><br>E ${u.e.toFixed(1)}<br>N ${u.n.toFixed(1)}`}
-navigator.geolocation?navigator.geolocation.watchPosition(p=>{pos=p;showGps()},e=>{$("#gps").textContent="GPS no disponible: activa la ubicación y permite el acceso."},{enableHighAccuracy:true,maximumAge:0}):0;
-$("#tk").onclick=()=>{if(!pos)return alert("Aún no hay posición GPS. Espera unos segundos al aire libre.");
-const c=pos.coords;snap={lat:c.latitude,lon:c.longitude,alt:c.altitude,acc:c.accuracy,ts:Date.now()};$("#cam").click()};
-$("#cam").onchange=e=>{file=e.target.files[0];e.target.value="";if(!file)return;
-const u=toUTM(snap.lat,snap.lon,$("#zf").value);$("#pv").src=URL.createObjectURL(file);$("#nm").value="";$("#ds").value="";
-$("#sc").textContent=`Zona ${u.zone}${u.band} · E ${u.e.toFixed(1)} · N ${u.n.toFixed(1)}`;$("#sh").hidden=false};
-$("#dc").onclick=()=>{file=null;$("#sh").hidden=true};
+const GM={1:"Permiso de ubicación denegado. En Chrome toca el ícono junto a la dirección, Permisos, Ubicación, Permitir. En Ajustes del celular activa Ubicación y elige \"Precisa\" para Chrome o para esta app.",2:"No se pudo obtener la posición. Verifica que la Ubicación del celular esté activada y sal a cielo abierto.",3:"Sin señal GPS por ahora. Sal a un lugar abierto y espera unos segundos."};
+function gpsErr(e){$("#gps").innerHTML=`<span class="w">GPS no disponible (código ${e.code}).<br>${GM[e.code]||e.message}</span>`}
+function startGps(hi){if(!navigator.geolocation)return gpsErr({code:2,message:"Este navegador no tiene geolocalización."});
+if(wid!=null)navigator.geolocation.clearWatch(wid);
+wid=navigator.geolocation.watchPosition(p=>{pos=p;showGps()},e=>{if(hi&&e.code!=1)startGps(false);else gpsErr(e)},{enableHighAccuracy:hi,maximumAge:5000,timeout:20000})}
+$("#rg").onclick=()=>{$("#gps").textContent="Buscando GPS…";startGps(true)};startGps(true);
+function dictar(i,b){const R=window.SpeechRecognition||window.webkitSpeechRecognition;
+if((localStorage.mode||"sin")!="con")return alert("El audio automático requiere el modo \"Con internet\" (actívalo en Cambiar). Sin internet usa el micrófono del teclado.");
+if(!R)return alert("Este navegador no permite dictado. Usa el micrófono del teclado.");
+const r=new R();r.lang="es-PE";r.onresult=e=>{const t=e.results[0][0].transcript;i.value=(i.value?i.value+" ":"")+t};
+r.onerror=e=>alert("Dictado no disponible ("+e.error+"). Usa el teclado.");r.onstart=()=>b.textContent="Escuchando…";r.onend=()=>b.textContent="🎤 Audio";r.start()}
+document.querySelectorAll(".sm").forEach(b=>b.onclick=()=>{const i=$("#"+b.dataset.f);b.dataset.a=="t"?i.focus():dictar(i,b)});
+let stm;
+const stop=()=>{if(stm)stm.getTracks().forEach(t=>t.stop());stm=null;$("#vd").srcObject=null;$("#cv").hidden=true};
+const mk=()=>{const c=pos.coords;snap={lat:c.latitude,lon:c.longitude,alt:c.altitude,acc:c.accuracy,ts:Date.now()}};
+function prep(f){file=f;const u=toUTM(snap.lat,snap.lon,$("#zf").value);$("#pv").src=URL.createObjectURL(f);$("#nm").value="";$("#ds").value="";
+$("#sc").textContent=`Zona ${u.zone}${u.band} · E ${u.e.toFixed(1)} · N ${u.n.toFixed(1)}`;$("#sh").hidden=false}
+$("#tk").onclick=async()=>{if(!pos)return alert("Aún no hay posición GPS. Verifica que la ubicación esté activada y espera unos segundos al aire libre.");
+mk();if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return $("#cam").click();
+try{stm=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:2560},height:{ideal:1920}},audio:false});$("#vd").srcObject=stm;$("#cv").hidden=false}catch(e){$("#cam").click()}};
+$("#cc").onclick=stop;
+$("#cs").onclick=async()=>{const v=$("#vd"),t=stm.getVideoTracks()[0];let b;if(pos)mk();
+try{b=await new ImageCapture(t).takePhoto({imageWidth:2560})}catch(_){const c=document.createElement("canvas");c.width=v.videoWidth;c.height=v.videoHeight;c.getContext("2d").drawImage(v,0,0);b=await new Promise(r=>c.toBlob(r,"image/jpeg",.9))}
+stop();prep(b)};
+$("#cam").onchange=e=>{const f=e.target.files[0];e.target.value="";if(f)prep(f)};
+$("#dc").onclick=()=>{URL.revokeObjectURL($("#pv").src);file=null;$("#sh").hidden=true};
 $("#sv").onclick=async()=>{const l=await all(),n=l.length?l[l.length-1].n+1:1,u=toUTM(snap.lat,snap.lon,$("#zf").value);
-const rec={pid:proj.id,n,code:"FOTO-"+pad(n),nombre:$("#nm").value.trim()||"Sin nombre",desc:$("#ds").value.trim(),...snap,e:u.e,nn:u.n,zone:u.zone+u.band,blob:file};
-await new Promise(r=>{const t=db.transaction("f","readwrite");t.objectStore("f").add(rec);t.oncomplete=r});file=null;$("#sh").hidden=true};
+let thumb=null;try{const bm=await createImageBitmap(file,{resizeWidth:160,resizeQuality:"low"}),c=document.createElement("canvas");c.width=bm.width;c.height=bm.height;c.getContext("2d").drawImage(bm,0,0);thumb=await new Promise(r=>c.toBlob(r,"image/jpeg",.7));bm.close()}catch(_){}
+const rec={thumb,pid:proj.id,n,code:"FOTO-"+pad(n),nombre:$("#nm").value.trim()||"Sin nombre",desc:$("#ds").value.trim(),...snap,e:u.e,nn:u.n,zone:u.zone+u.band,blob:file};
+await new Promise(r=>{const t=db.transaction("f","readwrite");t.objectStore("f").add(rec);t.oncomplete=r});URL.revokeObjectURL($("#pv").src);file=null;$("#sh").hidden=true};
 async function list(){const l=await all();$("#ls").innerHTML=l.length?"":"<small>Aún no hay fotos.</small>";
-l.forEach(r=>{const d=document.createElement("div"),[f,h]=dt(r.ts);d.className="c r";d.innerHTML=`<img src="${URL.createObjectURL(r.blob)}" alt=""><div style="flex:1;font-size:14px"><b>${r.code} · </b><span></span><br><span class="g m" style="font-size:12px">${r.zone} E ${r.e.toFixed(0)} N ${r.nn.toFixed(0)}</span><br><small>${f} ${h}</small></div><div style="display:flex;flex-direction:column;gap:6px"><button aria-label="Editar" style="min-height:40px">Editar</button><button aria-label="Eliminar" style="min-height:40px">X</button></div>`;
-d.querySelector("span").textContent=r.nombre;d.querySelector("[aria-label=Editar]").onclick=()=>{const n=prompt("Nombre de la foto",r.nombre);if(n===null)return;const t=prompt("Descripción del predio",r.desc);if(t===null)return;r.nombre=n.trim()||"Sin nombre";r.desc=t.trim();st("readwrite").put(r).onsuccess=list};d.querySelector("[aria-label=Eliminar]").onclick=()=>{if(confirm("¿Eliminar "+r.code+"?")){st("readwrite").delete(r.id).onsuccess=list}};$("#ls").append(d)})}
-$("#ex").onclick=async()=>{const l=await all();if(!l.length)return alert("No hay fotos para exportar.");$("#em").textContent="Preparando…";
+l.forEach(r=>{const d=document.createElement("div"),[f,h]=dt(r.ts);d.className="c r";d.innerHTML=`<img src="${URL.createObjectURL(r.thumb||r.blob)}" alt=""><div style="flex:1;font-size:14px"><b>${r.code} · </b><span></span><br><span class="g m" style="font-size:12px">${r.zone} E ${r.e.toFixed(0)} N ${r.nn.toFixed(0)}</span><br><small>${f} ${h}</small></div><div style="display:flex;flex-direction:column;gap:6px"><button aria-label="Editar" style="min-height:40px">Editar</button><button aria-label="Eliminar" style="min-height:40px">X</button></div>`;
+d.querySelector("span").textContent=r.nombre;
+d.querySelector("[aria-label=Editar]").onclick=()=>{const n=prompt("Nombre de la foto",r.nombre);if(n===null)return;const t=prompt("Descripción del predio",r.desc);if(t===null)return;r.nombre=n.trim()||"Sin nombre";r.desc=t.trim();st("readwrite").put(r).onsuccess=list};
+d.querySelector("[aria-label=Eliminar]").onclick=()=>{if(confirm("¿Eliminar "+r.code+"?")){st("readwrite").delete(r.id).onsuccess=list}};$("#ls").append(d)})}
+const slug=()=>proj.nombre.replace(/[^\w-]+/g,"_")+"_"+proj.fecha;
+async function datos(){const l=await all();if(!l.length){alert("No hay fotos para exportar.");return}
 const rows=[["N° foto","Código","Nombre de la foto","Descripción del predio","Zona UTM","Este (m)","Norte (m)","Latitud","Longitud","Precisión GPS (m)","Fecha","Hora","Proyecto","Entidad"]];
-const fs=[];for(const r of l){const[f,h]=dt(r.ts);rows.push([r.n,r.code,r.nombre,r.desc,r.zone,+r.e.toFixed(2),+r.nn.toFixed(2),+r.lat.toFixed(7),+r.lon.toFixed(7),+(r.acc||0).toFixed(1),f,h,proj.nombre,proj.entidad]);
-fs.push({name:"fotos/"+r.code+".jpg",data:new Uint8Array(await r.blob.arrayBuffer())})}
-const en=new TextEncoder(),xb=new Uint8Array(await xlsx(rows).arrayBuffer());
-fs.push({name:"registro.xlsx",data:xb},{name:"ubicaciones.kml",data:en.encode(kml(proj.nombre,l))});
-const nm=proj.nombre.replace(/[^\w-]+/g,"_")+"_"+proj.fecha+".zip",z=new File([zip(fs)],nm,{type:"application/zip"});
-if(navigator.canShare&&navigator.canShare({files:[z]}))try{await navigator.share({files:[z],title:nm})}catch(_){}else{const a=document.createElement("a");a.href=URL.createObjectURL(z);a.download=nm;a.click()}
-$("#em").textContent="Listo: "+nm};
+l.forEach(r=>{const[f,h]=dt(r.ts);rows.push([r.n,r.code,r.nombre,r.desc,r.zone,+r.e.toFixed(2),+r.nn.toFixed(2),+r.lat.toFixed(7),+r.lon.toFixed(7),+(r.acc||0).toFixed(1),f,h,proj.nombre,proj.entidad])});return{l,rows}}
+async function enviar(f){if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:f.name})}catch(_){}}else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=f.name;a.click()}$("#em").textContent="Listo: "+f.name}
+$("#bx").onclick=async()=>{const d=await datos();if(d)enviar(new File([xlsx(d.rows)],slug()+".xlsx",{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}))};
+$("#bk").onclick=async()=>{const d=await datos();if(d)enviar(new File([kml(proj.nombre,d.l)],slug()+".kml",{type:"application/vnd.google-earth.kml+xml"}))};
+$("#bz").onclick=async()=>{const d=await datos();if(!d)return;$("#em").textContent="Preparando…";const fs=[];
+for(const r of d.l)fs.push({name:"fotos/"+r.code+".jpg",data:new Uint8Array(await r.blob.arrayBuffer())});
+fs.push({name:slug()+".xlsx",data:new Uint8Array(await xlsx(d.rows).arrayBuffer())},{name:slug()+".kml",data:new TextEncoder().encode(kml(proj.nombre,d.l))});
+enviar(new File([zip(fs)],slug()+".zip",{type:"application/zip"}))};
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");
 </script></body></html>
